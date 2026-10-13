@@ -1,1 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doce Delivery</title>
 
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #fff4f7;
+  color: #46283b;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: 0 4px 18px #e9cbd8;
+}
+
+h1 {
+  text-align: center;
+  color: #d63384;
+}
+
+.subtitulo {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 18px;
+}
+
+select, button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 8px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+select {
+  border: 1px solid #d9a9bf;
+  background: white;
+  color: #46283b;
+}
+
+button {
+  border: none;
+  background: #d63384;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 25px;
+}
+
+button:hover {
+  background: #ad2168;
+}
+
+#resultado {
+  display: none;
+  margin-top: 25px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #fff0f6;
+  border: 2px solid #e9a3c5;
+}
+
+.loja {
+  padding: 12px 0;
+  border-bottom: 1px solid #e9cbd8;
+}
+
+.pequeno {
+  font-size: 13px;
+  color: #765b6c;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🍬 Doce Delivery</h1>
+
+<p class="subtitulo">
+Escolha seu doce favorito e descubra qual doceria combina melhor com você!
+</p>
+
+<label for="doce">1. Qual doce você quer?</label>
+<select id="doce">
+  <option value="brigadeiro">🍬 Brigadeiro clássico</option>
+  <option value="bombom">🍫 Bombom</option>
+  <option value="brownie">🍫 Brownie</option>
+  <option value="beijinho">🥥 Beijinho</option>
+</select>
+
+<label for="prioridade">2. O que é mais importante?</label>
+<select id="prioridade">
+  <option value="preco">💰 Menor preço</option>
+  <option value="rapidez">⚡ Entrega mais rápida</option>
+  <option value="avaliacao">⭐ Melhor avaliação</option>
+  <option value="distancia">📍 Menor distância</option>
+</select>
+
+<label for="distancia">3. Qual distância máxima?</label>
+<select id="distancia">
+  <option value="2">Até 2 km</option>
+  <option value="5">Até 5 km</option>
+  <option value="999">Qualquer distância</option>
+</select>
+
+<button onclick="recomendar()">Encontrar minha doceria!</button>
+
+<div id="resultado" aria-live="polite"></div>
+
+<p class="pequeno">
+Projeto educativo. As docerias, os preços e os dados são fictícios.
+</p>
+
+</div>
+
+<script>
+const docerias = [
+  {
+    nome: "Brigadeiros da Bia",
+    doce: "brigadeiro",
+    preco: 8,
+    tempo: 18,
+    avaliacao: 4.8,
+    distancia: 1.2
+  },
+  {
+    nome: "Mundo dos Bombons",
+    doce: "bombom",
+    preco: 12,
+    tempo: 15,
+    avaliacao: 4.9,
+    distancia: 2.4
+  },
+  {
+    nome: "Brownie da Vila",
+    doce: "brownie",
+    preco: 10,
+    tempo: 25,
+    avaliacao: 4.6,
+    distancia: 1.5
+  },
+  {
+    nome: "Cantinho do Beijinho",
+    doce: "beijinho",
+    preco: 9,
+    tempo: 12,
+    avaliacao: 4.7,
+    distancia: 1.8
+  },
+  {
+    nome: "Ateliê Açúcar & Afeto",
+    doce: "brigadeiro",
+    preco: 14,
+    tempo: 10,
+    avaliacao: 5.0,
+    distancia: 3.5
+  },
+  {
+    nome: "Doceria ChocoMix",
+    doce: "bombom",
+    preco: 15,
+    tempo: 20,
+    avaliacao: 4.8,
+    distancia: 3.2
+  },
+  {
+    nome: "Brownies da Praça",
+    doce: "brownie",
+    preco: 13,
+    tempo: 14,
+    avaliacao: 4.9,
+    distancia: 4.1
+  },
+  {
+    nome: "Doçura de Coco",
+    doce: "beijinho",
+    preco: 11,
+    tempo: 17,
+    avaliacao: 4.9,
+    distancia: 2.2
+  }
+];
+
+function recomendar() {
+  const doce = document.getElementById("doce").value;
+  const prioridade = document.getElementById("prioridade").value;
+  const limite = Number(document.getElementById("distancia").value);
+
+  // 1. Filtrar docerias pela distância máxima.
+  const disponiveis = docerias.filter(
+    loja => loja.distancia <= limite
+  );
+
+  const resultado = document.getElementById("resultado");
+  resultado.style.display = "block";
+
+  if (disponiveis.length === 0) {
+    resultado.innerHTML =
+      "<h2>Nenhuma doceria encontrada</h2>" +
+      "<p>Tente aumentar a distância máxima.</p>";
+    return;
+  }
+
+  // 2. Calcular uma pontuação para cada doceria.
+  const classificadas = disponiveis.map(loja => {
+    let pontos = 0;
+    const motivos = [];
+
+    // Dar preferência ao doce escolhido.
+    if (loja.doce === doce) {
+      pontos += 50;
+      motivos.push("vende o doce escolhido");
+    } else {
+      pontos -= 30;
+    }
+
+    // 3. Aplicar a prioridade selecionada.
+    if (prioridade === "preco") {
+      pontos += (25 - loja.preco) * 2;
+      motivos.push("preço de R$ " + loja.preco.toFixed(2));
+    }
+
+    if (prioridade === "rapidez") {
+      pontos += (30 - loja.tempo) * 2;
+      motivos.push("entrega estimada em " + loja.tempo + " minutos");
+    }
+
+    if (prioridade === "avaliacao") {
+      pontos += loja.avaliacao * 10;
+      motivos.push("avaliação de " + loja.avaliacao + " estrelas");
+    }
+
+    if (prioridade === "distancia") {
+      pontos += (6 - loja.distancia) * 5;
+      motivos.push("distância de " + loja.distancia + " km");
+    }
+
+    // Favorecer ligeiramente estabelecimentos próximos.
+    pontos += (6 - loja.distancia);
+
+    return {
+      ...loja,
+      pontos,
+      motivos
+    };
+  });
+
+  // 4. Ordenar da maior para a menor pontuação.
+  classificadas.sort((a, b) => b.pontos - a.pontos);
+
+  const vencedora = classificadas[0];
+
+  // 5. Mostrar a melhor recomendação.
+  let html = `
+    <h2>🏆 Sua melhor opção!</h2>
+    <h3>${vencedora.nome}</h3>
+    <p><strong>Doce:</strong> ${nomeDoce(vencedora.doce)}</p>
+    <p><strong>Preço:</strong> R$ ${vencedora.preco.toFixed(2)}</p>
+    <p><strong>Entrega estimada:</strong> ${vencedora.tempo} minutos</p>
+    <p><strong>Avaliação:</strong> ${vencedora.avaliacao} ⭐</p>
+    <p><strong>Distância:</strong> ${vencedora.distancia} km</p>
+    <p><strong>Por que foi escolhida?</strong>
+    A doceria obteve a maior pontuação entre as opções disponíveis.
+    ${vencedora.motivos.join("; ")}.</p>
+    <hr>
+    <h3>Outras opções</h3>
+  `;
+
+  classificadas.slice(1, 4).forEach(loja => {
+    html += `
+      <div class="loja">
+        <strong>${loja.nome}</strong><br>
+        ${nomeDoce(loja.doce)} ·
+        R$ ${loja.preco.toFixed(2)} ·
+        ${loja.tempo} min ·
+        ${loja.avaliacao} ⭐ ·
+        ${loja.distancia} km
+      </div>
+    `;
+  });
+
+  html += `
+    <p class="pequeno">
+      O algoritmo filtrou pela distância, comparou as opções,
+      calculou pontuações e classificou as docerias.
+      Mudar suas escolhas pode mudar a recomendação.
+    </p>
+  `;
+
+  resultado.innerHTML = html;
+}
+
+function nomeDoce(doce) {
+  const nomes = {
+    brigadeiro: "Brigadeiro clássico",
+    bombom: "Bombom",
+    brownie: "Brownie",
+    beijinho: "Beijinho"
+  };
+
+  return nomes[doce] || doce;
+}
+</script>
+
+</body>
+</html>
